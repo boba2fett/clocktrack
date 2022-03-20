@@ -27,7 +27,6 @@
         }
         const urlRegex = new RegExp(urlRules[0].regex);
         const matches = url.match(urlRegex);
-        console.log(matches);
         if (matches?.length > 1) {
             value = matches[1];
         }
