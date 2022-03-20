@@ -1,11 +1,14 @@
 <script lang="ts">
-	let url: string;
     let value: string;
-    async function getSettings() {
-        let settings = await browser.storage.local.get();
-        value = settings.test as string || "";
-    };
 
+	import type { Settings } from "./global";
+    let settings: Settings;
+    async function getSettings() {
+        settings = await browser.storage.local.get() as any as Settings;
+        if (!settings.urlRules) {
+            settings.urlRules = [];
+        }
+    };
     getSettings();
 
 	async function executeScript() {
@@ -15,16 +18,27 @@
         }
 		const tab = tabs[0];
 		const result = await browser.tabs.executeScript(tab.id ,{code: "window.location.href;"});
-		url = result[0] as any as string;
-	}
+		let url = result[0] as any as string;
+
+        const urlRules = settings.urlRules.filter(urlRule => url.startsWith(urlRule.baseUri));
+        if (urlRules.length === 0) {
+            console.log("No matching url rule found.");
+            return;
+        }
+        const urlRegex = new RegExp(urlRules[0].regex);
+        const matches = url.match(urlRegex);
+        console.log(matches);
+        if (matches?.length > 1) {
+            value = matches[1];
+        }
+    }
 </script>
 
 <main>
 	<button on:click={executeScript}>Exec Script</button>
-    <p>{value}</p>
-	{#if url}
-		<p>{url}</p>
-	{/if}
+    {#if value}
+        <p>{value}</p>
+    {/if}
 </main>
 
 <style>
