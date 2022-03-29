@@ -8,7 +8,8 @@
     "start": "sirv public --no-clear",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "dev-ext": "web-ext run --source-dir=public --artifacts-dir=public/artifacts",
-    "build-ext": "web-ext run --source-dir=public --artifacts-dir=public/artifacts"
+    "build-ext": "web-ext run --source-dir=public --artifacts-dir=public/artifacts",
+    "build-all": "npm run build && npm run build-ext"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",
