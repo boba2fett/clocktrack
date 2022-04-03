@@ -1,6 +1,7 @@
 <script lang="ts">
     import Plus from "svelte-material-icons/Plus.svelte";
-    import Stop from "svelte-material-icons/Stop.svelte";
+    import Pause from "svelte-material-icons/Pause.svelte";
+    import Play from "svelte-material-icons/Play.svelte";
     import Delete from "svelte-material-icons/Delete.svelte";
 	import type { Settings } from "./global";
     let settings: Settings;
@@ -12,7 +13,7 @@
         if (!settings.timeRecordings) {
             settings.timeRecordings = [];
         }
-        settings.timeRecordings.sort((a,b) => a.startTime.getTime() - b.startTime.getTime());
+        settings.timeRecordings.sort((a,b) => (a.lastEndTime?.getTime() || a.lastStartTime.getTime()) - (b.lastEndTime?.getTime() || b.lastStartTime.getTime()));
     };
     getSettings();
 
@@ -25,8 +26,9 @@
         }
         settings.timeRecordings = settings.timeRecordings.concat([{
             task: task,
-            startTime: new Date(),
-            endTime: null,
+            timeSeconds: 0,
+            lastStartTime: new Date(),
+            lastEndTime: null,
         }]);
         await browser.storage.local.set(settings as any as browser.storage.StorageObject);
         taskName = "";
@@ -38,8 +40,16 @@
         await browser.storage.local.set(settings as any as browser.storage.StorageObject);
 	}
 
-    async function stopTask(index: number) {
-		settings.timeRecordings[index].endTime = new Date();
+    async function pauseTask(index: number) {
+		settings.timeRecordings[index].lastEndTime = new Date();
+		settings.timeRecordings[index].timeSeconds += (settings.timeRecordings[index].lastEndTime.getTime() - settings.timeRecordings[index].lastStartTime.getTime()) / 1000;
+        settings.timeRecordings = settings.timeRecordings;
+        await browser.storage.local.set(settings as any as browser.storage.StorageObject);
+	}
+
+    async function playTask(index: number) {
+		settings.timeRecordings[index].lastEndTime = null;
+		settings.timeRecordings[index].lastStartTime = new Date();
         settings.timeRecordings = settings.timeRecordings;
         await browser.storage.local.set(settings as any as browser.storage.StorageObject);
 	}
@@ -79,22 +89,22 @@
     {#if settings?.timeRecordings}
         {#each settings.timeRecordings as timeRecording, index}
             <div class="timerecording">
-                <span>{timeRecording.task}</span>
-                <span>{timeRecording.startTime.toLocaleString()}</span>
-                <span>{
-                    Math.floor(((
-                        timeRecording.endTime?.getTime() || new Date().getTime())
-                        - timeRecording.startTime.getTime())
-                        / 3600000).toString().padStart(2, '0')
-                    + ":" +
-                    Math.floor((((
-                        timeRecording.endTime?.getTime() || new Date().getTime())
-                        - timeRecording.startTime.getTime())
-                        % 3600000) / 60000).toString().padStart(2, '0')
-                        }</span>
-                {#if !timeRecording.endTime}
-                    <button on:click={() => stopTask(index)}><Stop /></button>
+                {#if !timeRecording.lastEndTime}
+                    <button on:click={() => pauseTask(index)}><Pause /></button>
+                {:else}
+                    <button on:click={() => playTask(index)}><Play /></button>
                 {/if}
+                <span>{timeRecording.task}</span>
+                <span class="spacer"></span>
+                <span>{
+                    Math.floor(
+                        (timeRecording.timeSeconds + (timeRecording.lastEndTime ? 0 : (new Date().getTime() - timeRecording.lastStartTime.getTime()) / 1000))
+                        / 3600).toString().padStart(2, '0')
+                    + ":" +
+                    Math.floor(
+                        ((timeRecording.timeSeconds + (timeRecording.lastEndTime ? 0 : (new Date().getTime() - timeRecording.lastStartTime.getTime()) / 1000))
+                        % 3600) / 60).toString().padStart(2, '0')
+                    }</span>
                 <button on:click="{() => removeTask(index)}"><Delete /></button>
             </div>
         {/each}
@@ -109,6 +119,10 @@
 		height: 280px;
 		margin: 0 auto;
 	}
+
+    .spacer {
+        margin: 0 auto;
+    }
 
     .task {
         display: flex;

@@ -6,8 +6,9 @@ export interface Settings {
 }
 
 export interface TimeRecord {
-    startTime: Date,
-    endTime: Date,
+    lastStartTime: Date,
+    lastEndTime: Date,
+    timeSeconds: number,
     task: string,
 }
 
