@@ -9,7 +9,12 @@
     async function getSettings() {
         settings = await browser.storage.local.get() as any as Settings;
         if (!settings.urlRules) {
-            settings.urlRules = [];
+            settings.urlRules = [
+                {
+                    baseUri: "https://stackoverflow.com/",
+                    regex: ".*\/questions\/([^/]+)"
+                }
+            ];
         }
     };
     getSettings();
@@ -34,19 +39,15 @@
     const predefineds: Predefined[] = [
         {
             name: "jira",
-            regex: ".*/browse/([^/]+)$"
+            regex: ".*\/browse\/([^/]+)"
         },
         {
             name: "stackoverflow",
-            regex: ".*/questions/([^/]+)$"
-        },
-        {
-            name: "trello",
-            regex: ".*/([^/]+)$"
+            regex: ".*\/questions\/([^/]+)"
         },
         {
             name: "salesforce",
-            regex: ".*/([^/]+)$"
+            regex: ".*\/([^/]+)"
         }
     ];
 </script>

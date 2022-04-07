@@ -3,7 +3,8 @@
     import Pause from "svelte-material-icons/Pause.svelte";
     import Play from "svelte-material-icons/Play.svelte";
     import Delete from "svelte-material-icons/Delete.svelte";
-	import type { Settings } from "./global";
+	import type { Settings, TimeRecord } from "./global";
+import Time from "./Time.svelte";
     let settings: Settings;
     async function getSettings() {
         settings = await browser.storage.local.get() as any as Settings;
@@ -62,7 +63,10 @@
 		const tab = tabs[0];
 		const result = await browser.tabs.executeScript(tab.id ,{code: "window.location.href;"});
 		let url = result[0] as any as string;
-
+        if (!url)
+        {
+            return null;
+        }
         const urlRules = settings.urlRules.filter(urlRule => url.startsWith(urlRule.baseUri));
         if (urlRules.length === 0) {
             console.log("No matching url rule found.");
@@ -75,7 +79,6 @@
         }
         return null;
     }
-
     let taskName = "";
 
 </script>
@@ -96,15 +99,7 @@
                 {/if}
                 <span>{timeRecording.task}</span>
                 <span class="spacer"></span>
-                <span>{
-                    Math.floor(
-                        (timeRecording.timeSeconds + (timeRecording.lastEndTime ? 0 : (new Date().getTime() - timeRecording.lastStartTime.getTime()) / 1000))
-                        / 3600).toString().padStart(2, '0')
-                    + ":" +
-                    Math.floor(
-                        ((timeRecording.timeSeconds + (timeRecording.lastEndTime ? 0 : (new Date().getTime() - timeRecording.lastStartTime.getTime()) / 1000))
-                        % 3600) / 60).toString().padStart(2, '0')
-                    }</span>
+                <span><Time {timeRecording}/></span>
                 <button on:click="{() => removeTask(index)}"><Delete /></button>
             </div>
         {/each}
