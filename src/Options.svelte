@@ -12,7 +12,7 @@
             settings.urlRules = [
                 {
                     baseUri: "https://stackoverflow.com/",
-                    regex: ".*\/questions\/([^/]+)"
+                    regex: ".*\/questions\/([^/]+).*"
                 }
             ];
         }
@@ -43,7 +43,7 @@
         },
         {
             name: "stackoverflow",
-            regex: ".*\/questions\/([^/]+)"
+            regex: ".*\/questions\/([^/]+).*"
         },
         {
             name: "salesforce",

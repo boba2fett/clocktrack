@@ -4,9 +4,11 @@
     import Play from "svelte-material-icons/Play.svelte";
     import Delete from "svelte-material-icons/Delete.svelte";
 	import type { Settings, TimeRecord } from "./global";
-import Time from "./Time.svelte";
+    import Time from "./Time.svelte";
+    import { onMount } from 'svelte';
+
     let settings: Settings;
-    async function getSettings() {
+    async function getSettings(): Promise<void> {
         settings = await browser.storage.local.get() as any as Settings;
         if (!settings.urlRules) {
             settings.urlRules = [];
@@ -18,11 +20,15 @@ import Time from "./Time.svelte";
     };
     getSettings();
 
-    async function addTask(task: string) {
+    async function addTask(task: string): Promise<void> {
         if (!task) {
             task = await executeScript();
         }
         if (!task) {
+            return;
+        }
+
+        if (settings.timeRecordings.find(x => x.task === task)) {
             return;
         }
         settings.timeRecordings = settings.timeRecordings.concat([{
@@ -35,20 +41,20 @@ import Time from "./Time.svelte";
         taskName = "";
     }
 
-    async function removeTask(index: number) {
+    async function removeTask(index: number): Promise<void> {
 		settings.timeRecordings.splice(index, 1);
         settings.timeRecordings = settings.timeRecordings;
         await browser.storage.local.set(settings as any as browser.storage.StorageObject);
 	}
 
-    async function pauseTask(index: number) {
+    async function pauseTask(index: number): Promise<void> {
 		settings.timeRecordings[index].lastEndTime = new Date();
 		settings.timeRecordings[index].timeSeconds += (settings.timeRecordings[index].lastEndTime.getTime() - settings.timeRecordings[index].lastStartTime.getTime()) / 1000;
         settings.timeRecordings = settings.timeRecordings;
         await browser.storage.local.set(settings as any as browser.storage.StorageObject);
 	}
 
-    async function playTask(index: number) {
+    async function playTask(index: number): Promise<void> {
 		settings.timeRecordings[index].lastEndTime = null;
 		settings.timeRecordings[index].lastStartTime = new Date();
         settings.timeRecordings = settings.timeRecordings;
@@ -79,40 +85,48 @@ import Time from "./Time.svelte";
         }
         return null;
     }
-    let taskName = "";
 
+    function onKeyPress(e: KeyboardEvent):void {
+        if (e.key === "Enter") {
+            addTask(taskName);
+        }
+    }
+
+    let taskName = "";
+    let input: HTMLInputElement;
+    onMount(function() {
+        input.focus();
+    });
 </script>
 
 <main>
     <div class="task">
-        <label for={"task"}>Task</label>
-        <input id={"task"} bind:value={taskName}>
-        <button on:click={() => addTask(taskName)}><Plus /></button>
+        <label class="first" for={"task"}>Task:</label>
+        <input id={"task"} bind:value={taskName} bind:this={input} on:keypress={onKeyPress}>
+        <button class="last" on:click={() => addTask(taskName)}><Plus /></button>
     </div>
     {#if settings?.timeRecordings}
         {#each settings.timeRecordings as timeRecording, index}
             <div class="timerecording">
                 {#if !timeRecording.lastEndTime}
-                    <button on:click={() => pauseTask(index)}><Pause /></button>
+                    <button class="first" on:click={() => pauseTask(index)}><Pause /></button>
                 {:else}
-                    <button on:click={() => playTask(index)}><Play /></button>
+                    <button class="first" on:click={() => playTask(index)}><Play /></button>
                 {/if}
-                <span>{timeRecording.task}</span>
+                <span class="description">{timeRecording.task}</span>
                 <span class="spacer"></span>
                 <span><Time {timeRecording}/></span>
-                <button on:click="{() => removeTask(index)}"><Delete /></button>
+                <button class="last" on:click="{() => removeTask(index)}"><Delete /></button>
             </div>
         {/each}
     {/if}
 </main>
 
-<style>
+<style lang="scss">
 	main {
-		text-align: center;
 		padding: 1em;
-		width: 280px;
+		width: 380px;
 		height: 280px;
-		margin: 0 auto;
 	}
 
     .spacer {
@@ -123,11 +137,30 @@ import Time from "./Time.svelte";
         display: flex;
         flex-direction: row;
         align-items: center;
+        vertical-align: baseline;
+        input {
+            width: 80%;
+        }
+    }
+
+    .description {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .first {
+        margin-right: 1em;
+    }
+
+    .last {
+        margin-left: 1em;
     }
 
     .timerecording {
         display: flex;
         flex-direction: row;
         align-items: center;
+        vertical-align: baseline;
     }
 </style>
