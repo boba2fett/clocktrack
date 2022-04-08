@@ -7,11 +7,16 @@
     import Time from "./Time.svelte";
     import { onMount } from 'svelte';
 
+    const defaultUrlRule = [{
+        baseUri: "https://stackoverflow.com/",
+        regex: ".*\/questions\/([^/]+).*"
+    }];
+
     let settings: Settings;
     async function getSettings(): Promise<void> {
         settings = await browser.storage.local.get() as any as Settings;
         if (!settings.urlRules) {
-            settings.urlRules = [];
+            settings.urlRules = defaultUrlRule;
         }
         if (!settings.timeRecordings) {
             settings.timeRecordings = [];
@@ -75,7 +80,7 @@
         }
         const urlRules = settings.urlRules.filter(urlRule => url.startsWith(urlRule.baseUri));
         if (urlRules.length === 0) {
-            console.log("No matching url rule found.");
+            console.log("No matching url rule found.", urlRules, url);
             return;
         }
         const urlRegex = new RegExp(urlRules[0].regex);

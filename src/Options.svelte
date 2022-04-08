@@ -5,16 +5,17 @@
     import ContentSave from "svelte-material-icons/ContentSave.svelte";
     import Delete from "svelte-material-icons/Delete.svelte";
     import type { Predefined, Settings } from "./global";
+
+    const defaultUrlRule = [{
+        baseUri: "https://stackoverflow.com/",
+        regex: ".*\/questions\/([^/]+).*"
+    }];
+
 	let settings: Settings;
     async function getSettings() {
         settings = await browser.storage.local.get() as any as Settings;
         if (!settings.urlRules) {
-            settings.urlRules = [
-                {
-                    baseUri: "https://stackoverflow.com/",
-                    regex: ".*\/questions\/([^/]+).*"
-                }
-            ];
+            settings.urlRules = defaultUrlRule;
         }
     };
     getSettings();
