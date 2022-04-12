@@ -6,6 +6,7 @@
 	import type { Settings, TimeRecord } from "./global";
     import Time from "./Time.svelte";
     import { onMount } from 'svelte';
+    import TimeSum from "./TimeSum.svelte";
 
     const defaultUrlRule = [{
         baseUri: "https://stackoverflow.com/",
@@ -111,27 +112,34 @@
         <button class="last" on:click={() => addTask(taskName)}><Plus /></button>
     </div>
     {#if settings?.timeRecordings}
-        {#each settings.timeRecordings as timeRecording, index}
-            <div class="timerecording">
-                {#if !timeRecording.lastEndTime}
-                    <button class="first" on:click={() => pauseTask(index)}><Pause /></button>
-                {:else}
-                    <button class="first" on:click={() => playTask(index)}><Play /></button>
-                {/if}
-                <span class="description">{timeRecording.task}</span>
-                <span class="spacer"></span>
-                <span><Time {timeRecording}/></span>
-                <button class="last" on:click="{() => removeTask(index)}"><Delete /></button>
-            </div>
-        {/each}
+        <div class="timerecordings">
+            {#each settings.timeRecordings as timeRecording, index}
+                <div class="timerecording">
+                    {#if !timeRecording.lastEndTime}
+                        <button class="first" on:click={() => pauseTask(index)}><Pause /></button>
+                    {:else}
+                        <button class="first" on:click={() => playTask(index)}><Play /></button>
+                    {/if}
+                    <span class="description">{timeRecording.task}</span>
+                    <span class="spacer"></span>
+                    <span><Time {timeRecording}/></span>
+                    <button class="last" on:click="{() => removeTask(index)}"><Delete /></button>
+                </div>
+            {/each}
+        </div>
+        <div class="sum">
+            <span class="spacer"></span>
+            <TimeSum timeRecordings={settings.timeRecordings}/>
+        </div>
     {/if}
 </main>
 
 <style lang="scss">
 	main {
 		padding: 1em;
-		width: 380px;
+		width: 400px;
 		height: 280px;
+        overflow: hidden;
 	}
 
     .spacer {
@@ -163,6 +171,18 @@
     }
 
     .timerecording {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        vertical-align: baseline;
+    }
+
+    .timerecordings {
+        overflow-y: scroll;
+        height: 80%;
+    }
+
+    .sum {
         display: flex;
         flex-direction: row;
         align-items: center;

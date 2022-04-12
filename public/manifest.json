@@ -2,7 +2,7 @@
   "description": "A simple time tracking tool wich reads out tocket ids from the url.",
   "manifest_version": 2,
   "name": "ClockTrack",
-  "version": "1.0",
+  "version": "1.2",
   "homepage_url": "https://www.ftue.ddnss.org",
   "icons": {
     "48": "icons/48.png"
