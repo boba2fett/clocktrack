@@ -19,16 +19,32 @@
         },
     ];
 
-    const defaultUrlRule = [{
-        baseUri: "https://stackoverflow.com/",
-        regex: predefineds.find(x => x.name === "stackoverflow").regex
-    }];
+    const defaultUrlRule = [
+        {
+            type: "DL21-05299",
+            baseUri: "https://jira.d-velop.de",
+            regex: ".*/browse/([^/\?]+).*"
+        },
+        {
+            type: "DL21-05301",
+            baseUri: "https://dvelop.lightning.force.com/",
+            regex: ".*/Case/([^/\?]+).*"
+        }
+    ];
 
 	let settings: Settings;
     async function getSettings() {
         settings = await browser.storage.local.get() as any as Settings;
         if (!settings.urlRules) {
             settings.urlRules = defaultUrlRule;
+        }
+        if (!settings.fallbackType)
+        {
+            settings.fallbackType = "DL21-05303";
+        }
+        if (!settings.navisionSupport)
+        {
+            settings.navisionSupport = false;
         }
     };
     getSettings();
@@ -38,25 +54,11 @@
         await getSettings();
 	}
 
-    async function setDvSettings() {
-        settings.urlRules = [
-            {
-                baseUri: "https://jira.d-velop.de",
-                regex: predefineds.find(x => x.name === "jira").regex
-            },
-            {
-                baseUri: "https://dvelop.lightning.force.com/",
-                regex: predefineds.find(x => x.name === "salesforce").regex
-            }
-        ];
-		browser.storage.local.set(settings as any as browser.storage.StorageObject);
-        await getSettings();
-	}
-
     function addSetting() {
 		settings.urlRules = settings.urlRules.concat({
             baseUri: "",
             regex: "",
+            type: ""
         });
 	}
 
@@ -65,40 +67,56 @@
         settings.urlRules = settings.urlRules;
 	}
 </script>
+{#if settings}
+    <h2>BaseUri To Regex</h2>
 
-<h2>BaseUri To Regex</h2>
+    {#if settings?.urlRules}
+        {#each settings.urlRules as urlRule, index}
+            <div class="urlregex">
+                {#if settings.navisionSupport}
+                    <label for={"type_" + index}>TYPE</label>
+                    <input id={"type_" + index} bind:value={urlRule.type}>
+                {/if}
+                <label for={"url_" + index}>URL</label>
+                <input id={"url_" + index} bind:value={urlRule.baseUri}>
+                <label for={"regex_" + index}>REGEX</label>
+                <input id={"regex_" + index} bind:value={urlRule.regex}>
+                <select bind:value={urlRule.regex}>
+                    {#each predefineds as predefined}
+                        <option value={predefined.regex}>
+                            {predefined.name}
+                        </option>
+                    {/each}
+                </select>
 
-{#if settings?.urlRules}
-    {#each settings.urlRules as urlRule, index}
-        <div class="urlregex">
-            <label for={"url_" + index}>URL</label>
-            <input id={"url_" + index} bind:value={urlRule.baseUri}>
-            <label for={"regex_" + index}>REGEX</label>
-            <input id={"regex_" + index} bind:value={urlRule.regex}>
-            <select bind:value={urlRule.regex}>
-                {#each predefineds as predefined}
-                    <option value={predefined.regex}>
-                        {predefined.name}
-                    </option>
-                {/each}
-            </select>
-
-            <div class="buttons">
-                <button on:click={() => removeSetting(index)}><Delete /></button>
+                <div class="buttons">
+                    <button on:click={() => removeSetting(index)}><Delete /></button>
+                </div>
             </div>
-        </div>
-    {/each}
+        {/each}
+    {/if}
+    
+    {#if settings.navisionSupport}
+        <h2>Fallback Type</h2>
+        <input bind:value={settings.fallbackType}>
+    {/if}
+
+    <h3>Navision Support (Experimental)</h3>
+    <input type="checkbox" class="navision" bind:checked={settings.navisionSupport} />
+    
+    <div class="buttons">
+        <button on:click={addSetting}><Plus /></button>
+        <button on:click={setSettings}><ContentSave /></button>
+    </div>
 {/if}
-
-<div class="buttons">
-    <button on:click={addSetting}><Plus /></button>
-    <button on:click={setSettings}><ContentSave /></button>
-    <button on:click={setDvSettings}>Use d.velop settings</button>
-</div>
-
 <style>
     .buttons {
         display: flex;
+    }
+
+    .navision {
+        align-self: start;
+        margin-bottom: 1em;
     }
 
     .urlregex {

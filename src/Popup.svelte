@@ -4,15 +4,24 @@
     import Play from "svelte-material-icons/Play.svelte";
     import Delete from "svelte-material-icons/Delete.svelte";
     import ContentCopy from "svelte-material-icons/ContentCopy.svelte";
+    import KeyboardReturn from "svelte-material-icons/KeyboardReturn.svelte";
 	import type { Settings, TimeRecord } from "./global";
     import Time from "./Time.svelte";
     import { onMount } from 'svelte';
     import TimeSum from "./TimeSum.svelte";
 
-    const defaultUrlRule = [{
-        baseUri: "https://stackoverflow.com/",
-        regex: ".*\/questions\/([^/]+).*"
-    }];
+    const defaultUrlRule = [
+        {
+            type: "DL21-05299",
+            baseUri: "https://jira.d-velop.de",
+            regex: ".*/browse/([^/\?]+).*"
+        },
+        {
+            type: "DL21-05301",
+            baseUri: "https://dvelop.lightning.force.com/",
+            regex: ".*/Case/([^/\?]+).*"
+        }
+    ];
 
     let settings: Settings;
     async function getSettings(): Promise<void> {
@@ -28,8 +37,9 @@
     getSettings();
 
     async function addTask(task: string): Promise<void> {
+        let type = settings.fallbackType;
         if (!task) {
-            task = await executeScript();
+            [task, type] = await getUrlMatch();
         }
         if (!task) {
             return;
@@ -43,6 +53,7 @@
             timeSeconds: 0,
             lastStartTime: new Date(),
             lastEndTime: null,
+            type: type
         }]);
         await browser.storage.local.set(settings as any as browser.storage.StorageObject);
         taskName = "";
@@ -68,13 +79,31 @@
         await browser.storage.local.set(settings as any as browser.storage.StorageObject);
 	}
 
-	async function executeScript(): Promise<string> {
-		const tabs = await browser.tabs.query({active: true, currentWindow: true});
-        if (tabs.length === 0) {
-            console.log("No active tab to use.");
-        }
+    async function toNavision(index: number): Promise<void> {
+        const timeRecord = settings.timeRecordings[index];
+        const timeSeconds = timeRecord.timeSeconds + (timeRecord.lastEndTime ? 0 : (new Date().getTime() - timeRecord.lastStartTime.getTime()) / 1000);
+        const hours = Math.floor(timeSeconds / 360) / 10;
+
+        await executeScript(`
+            let tableRows = document.querySelectorAll("tr[role='row']");
+            let tableRow = tableRows[tableRows.length - 1];
+
+            let inputs = tableRow.querySelectorAll("input");
+            inputs[0].value = "${timeRecord.type}";
+            inputs[4].value = "${hours.toLocaleString()}";
+            inputs[5].value = "${timeRecord.task}";
+        `);
+    }
+
+    async function executeScript(code: string): Promise<any>
+    {
+        const tabs = await browser.tabs.query({active: true, currentWindow: true});
 		const tab = tabs[0];
-		const result = await browser.tabs.executeScript(tab.id ,{code: "window.location.href;"});
+        return await browser.tabs.executeScript(tab.id ,{code: code});
+    }
+
+	async function getUrlMatch(): Promise<[string, string]> {
+		const result = await executeScript("window.location.href;");
 		let url = result[0] as any as string;
         if (!url)
         {
@@ -88,7 +117,7 @@
         const urlRegex = new RegExp(urlRules[0].regex);
         const matches = url.match(urlRegex);
         if (matches?.length > 1) {
-            return matches[1];
+            return [matches[1], urlRules[0].type];
         }
         return null;
     }
@@ -124,6 +153,9 @@
                     <span class="description">{timeRecording.task}</span>
                     <span class="spacer"></span>
                     <button class="first" on:click={() => navigator.clipboard.writeText(timeRecording.task)}><ContentCopy /></button>
+                    {#if settings.navisionSupport}
+                        <button class="first" on:click={() => toNavision(index)}><KeyboardReturn /></button>
+                    {/if}
                     <span><Time {timeRecording}/></span>
                     <button class="last" on:click="{() => removeTask(index)}"><Delete /></button>
                 </div>
