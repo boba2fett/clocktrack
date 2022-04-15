@@ -3,6 +3,7 @@
     import Pause from "svelte-material-icons/Pause.svelte";
     import Play from "svelte-material-icons/Play.svelte";
     import Delete from "svelte-material-icons/Delete.svelte";
+    import ContentCopy from "svelte-material-icons/ContentCopy.svelte";
 	import type { Settings, TimeRecord } from "./global";
     import Time from "./Time.svelte";
     import { onMount } from 'svelte';
@@ -122,6 +123,7 @@
                     {/if}
                     <span class="description">{timeRecording.task}</span>
                     <span class="spacer"></span>
+                    <button class="first" on:click={() => navigator.clipboard.writeText(timeRecording.task)}><ContentCopy /></button>
                     <span><Time {timeRecording}/></span>
                     <button class="last" on:click="{() => removeTask(index)}"><Delete /></button>
                 </div>

@@ -1,14 +1,27 @@
-<h1>BaseUri To Regex</h1>
-
 <script lang="ts">
     import Plus from "svelte-material-icons/Plus.svelte";
     import ContentSave from "svelte-material-icons/ContentSave.svelte";
     import Delete from "svelte-material-icons/Delete.svelte";
     import type { Predefined, Settings } from "./global";
 
+    const predefineds: Predefined[] = [
+        {
+            name: "jira",
+            regex: ".*/browse/([^/\?]+).*"
+        },
+        {
+            name: "salesforce",
+            regex: ".*/Case/([^/\?]+).*"
+        },
+        {
+            name: "stackoverflow",
+            regex: ".*/questions/([^/\?]+).*"
+        },
+    ];
+
     const defaultUrlRule = [{
         baseUri: "https://stackoverflow.com/",
-        regex: ".*\/questions\/([^/]+).*"
+        regex: predefineds.find(x => x.name === "stackoverflow").regex
     }];
 
 	let settings: Settings;
@@ -25,6 +38,21 @@
         await getSettings();
 	}
 
+    async function setDvSettings() {
+        settings.urlRules = [
+            {
+                baseUri: "https://jira.d-velop.de",
+                regex: predefineds.find(x => x.name === "jira").regex
+            },
+            {
+                baseUri: "https://dvelop.lightning.force.com/",
+                regex: predefineds.find(x => x.name === "salesforce").regex
+            }
+        ];
+		browser.storage.local.set(settings as any as browser.storage.StorageObject);
+        await getSettings();
+	}
+
     function addSetting() {
 		settings.urlRules = settings.urlRules.concat({
             baseUri: "",
@@ -36,22 +64,10 @@
 		settings.urlRules.splice(index, 1);
         settings.urlRules = settings.urlRules;
 	}
-
-    const predefineds: Predefined[] = [
-        {
-            name: "jira",
-            regex: ".*\/browse\/([^/]+)"
-        },
-        {
-            name: "stackoverflow",
-            regex: ".*\/questions\/([^/]+).*"
-        },
-        {
-            name: "salesforce",
-            regex: ".*\/([^/]+)"
-        }
-    ];
 </script>
+
+<h2>BaseUri To Regex</h2>
+
 {#if settings?.urlRules}
     {#each settings.urlRules as urlRule, index}
         <div class="urlregex">
@@ -77,6 +93,7 @@
 <div class="buttons">
     <button on:click={addSetting}><Plus /></button>
     <button on:click={setSettings}><ContentSave /></button>
+    <button on:click={setDvSettings}>Use d.velop settings</button>
 </div>
 
 <style>
