@@ -1,6 +1,6 @@
 image: 'node:18.7.0'
 
-pages:
+build:
   stage: build
   script:
   - npm ci
