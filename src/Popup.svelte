@@ -4,12 +4,11 @@
     import Play from "svelte-material-icons/Play.svelte";
     import Delete from "svelte-material-icons/Delete.svelte";
     import ContentCopy from "svelte-material-icons/ContentCopy.svelte";
-    import KeyboardReturn from "svelte-material-icons/KeyboardReturn.svelte";
 	import type { Settings, TimeRecord } from "./global";
     import Time from "./Time.svelte";
     import { onMount } from 'svelte';
     import TimeSum from "./TimeSum.svelte";
-import Tooltip from "./Tooltip.svelte";
+    import Tooltip from "./Tooltip.svelte";
 
     const defaultUrlRule = [
         {
