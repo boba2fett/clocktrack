@@ -6,7 +6,7 @@ build:
     VERSION: '1.6'
   script:
   - apt-get update
-  - apt-get install -y jq
+  - apt-get install -y jq zip
   - cat public/manifest.json | jq '.version |= "env.VERSION"' public/manifest.json
   - npm ci
   - npm run build-all
