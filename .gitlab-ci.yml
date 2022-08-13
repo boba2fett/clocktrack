@@ -7,6 +7,7 @@ build:
   script:
   - apt-get update
   - apt-get install -y jq
+  - cat public/manifest.json | jq '.version |= "${VERSION}"'
   - cat public/manifest.json | jq '.version |= "${VERSION}"' > public/manifest.json
   - cat public/manifest.json
   - npm ci
