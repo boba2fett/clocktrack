@@ -1,9 +1,9 @@
 image: 'node:18.7.0'
-variables:
-  VERSION: '1.6'
 
 build:
   stage: build
+  variables:
+    VERSION: '1.6'
   script:
   - apt-get update
   - apt-get install -y jq
