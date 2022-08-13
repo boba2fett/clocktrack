@@ -5,6 +5,7 @@ variables:
 build:
   stage: build
   script:
+  - apt-get update
   - apt-get install -y jq
   - cat public/manifest.json jq '.version |= "${VERSION}"' > public/manifest.json
   - npm ci
