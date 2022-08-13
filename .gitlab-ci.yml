@@ -19,7 +19,8 @@ build:
   - cp rollup.config.js source
   - cat README.md | sed 's/--OS_RELEASE--/$(lsb_release -a)/' | sed 's/--NODE_VERSION--/$(node -v)/' | sed 's/--NPM_VERSION--/$(npm -v)/' > README.md
   - cp README.md source
-  - zip -r "source${VERSION}" source
+  - ls artifacts
+  - zip -r "source${VERSION}" source-${VERSION}.zip
   artifacts:
     paths:
     - artifacts/clocktrack-${VERSION}.zip
