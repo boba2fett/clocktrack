@@ -5,6 +5,7 @@ build:
   variables:
     VERSION: '1.6'
   script:
+  - echo "$VERSION"
   - apt-get update
   - apt-get install -y jq
   - cat public/manifest.json | jq '.version |= "$VERSION"'
