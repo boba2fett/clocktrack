@@ -1,12 +1,30 @@
 image: 'node:18.7.0'
+variables:
+  VERSION: '1.6'
 
 build:
   stage: build
   script:
+  - cat public/manifest.json jq '.version |= "${VERSION}"' > public/manifest.json
   - npm ci
   - npm run build-all
+  - mkdir source
+  - cp -r src source
+  - cp -r public source
+  - cp package.json source
+  - cp package-lock.json source
+  - cp tsconfig.json source
+  - cp rollup.config.js source
+  - cat README.md \
+   | sed 's/--OS_RELEASE--/$(lsb_release -a)/' \
+   | sed 's/--NODE_VERSION--/$(node -v)/' \
+   | sed 's/--NPM_VERSION--/$(npm -v)/' \
+   > README.md
+  - cp README.md source
+  - zip -r "source${VERSION}" source
   artifacts:
     paths:
-    - artifacts
+    - artifacts/clocktrack-${VERSION}.zip
+    - source-${VERSION}.zip
   only:
   - pushes
