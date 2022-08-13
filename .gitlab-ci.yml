@@ -6,8 +6,8 @@ build:
     VERSION: '1.6'
   script:
   - apt-get update
-  - apt-get install -y jq zip
-  - cat public/manifest.json | jq '.version |= "env.VERSION"' public/manifest.json
+  - apt-get install -y zip
+  - sed -i "s/--VERSION--/$VERSION/" public/manifest.json
   - npm ci
   - npm run build-all
   - mkdir source
@@ -17,10 +17,12 @@ build:
   - cp package-lock.json source
   - cp tsconfig.json source
   - cp rollup.config.js source
-  - cat README.md | sed 's/--OS_RELEASE--/$(lsb_release -a)/' | sed 's/--NODE_VERSION--/$(node -v)/' | sed 's/--NPM_VERSION--/$(npm -v)/' > README.md
+  - sed -i "s/--OS_RELEASE--/$(lsb_release -a)/" README.md
+  - sed -i "s/--NODE_VERSION--/$(node -v)/" README.md
+  - sed -i "s/--NPM_VERSION--/$(npm -v)/" README.md
   - cp README.md source
-  - ls artifacts
-  - zip -r "source${VERSION}" source-${VERSION}.zip
+  - cat README.md
+  - zip -r "source-$VERSION.zip" source
   artifacts:
     paths:
     - artifacts/clocktrack-${VERSION}.zip
