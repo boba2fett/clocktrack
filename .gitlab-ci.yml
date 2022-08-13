@@ -5,12 +5,9 @@ build:
   variables:
     VERSION: '1.6'
   script:
-  - echo "$VERSION"
   - apt-get update
   - apt-get install -y jq
-  - cat public/manifest.json | jq '.version |= "$VERSION"'
-  - cat public/manifest.json | jq '.version |= "$VERSION"' > public/manifest.json
-  - cat public/manifest.json
+  - cat public/manifest.json | jq -n '.version |= "env.VERSION"' > public/manifest.json
   - npm ci
   - npm run build-all
   - mkdir source
