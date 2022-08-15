@@ -53,7 +53,7 @@
             timeSeconds: 0,
             lastStartTime: new Date(),
             lastEndTime: null,
-            type: type
+            type: type,
         }]);
         await browser.storage.local.set(settings as any as browser.storage.StorageObject);
         taskName = "";
@@ -82,10 +82,11 @@
     function generateClipBoardText(timeRecord: TimeRecord): string {
         if (settings?.navisionSupport)
         {
-            return timeRecord.type || settings.fallbackType + "\t" + timeRecord.task + "\t" + getHours(timeRecord);
+            return (timeRecord.type || settings.fallbackType) + "\t" + timeRecord.task + "\t" + getHours(timeRecord);
         }
         return timeRecord.task;
     }
+
     function getHours(timeRecord: TimeRecord): string {
         const timeSeconds = timeRecord.timeSeconds + (timeRecord.lastEndTime ? 0 : (new Date().getTime() - timeRecord.lastStartTime.getTime()) / 1000);
         const hours = Math.floor(timeSeconds / 360) / 10;
