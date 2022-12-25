@@ -67,14 +67,6 @@
         await browser.storage.local.set(settings as any as browser.storage.StorageObject);
 	}
 
-    function generateClipBoardText(timeRecord: TimeRecord): string {
-        if (settings?.navisionSupport)
-        {
-            return (timeRecord.type || settings.fallbackType) + "\t" + timeRecord.task + "\t" + getHours(timeRecord);
-        }
-        return timeRecord.task;
-    }
-
     function getHours(timeRecord: TimeRecord): string {
         const timeSeconds = timeRecord.timeSeconds + (timeRecord.lastEndTime ? 0 : (new Date().getTime() - timeRecord.lastStartTime.getTime()) / 1000);
         const hours = Math.floor(timeSeconds / 360) / 10;
@@ -139,11 +131,12 @@
                     {/if}
                     <span class="description">{timeRecording.task}</span>
                     <span class="spacer"></span>
-                    <button class="first" on:click={() => navigator.clipboard.writeText(generateClipBoardText(timeRecording))}><ContentCopy /></button>
+                    <button class="first" on:click={() => navigator.clipboard.writeText(timeRecording.task)}><ContentCopy /></button>
                     <Tooltip title={getHours(timeRecording)}>
                         <span><Time {timeRecording}/></span>
                     </Tooltip>
-                    <button class="last" on:click="{() => removeTask(index)}"><Delete /></button>
+                    <button class="middle" on:click={() => navigator.clipboard.writeText(getHours(timeRecording))}><ContentCopy /></button>
+                    <button on:click="{() => removeTask(index)}"><Delete /></button>
                 </div>
             {/each}
         </div>
@@ -186,8 +179,13 @@
         margin-right: 1em;
     }
 
+    .middle {
+        margin-right: 0.5em;
+        margin-left: 0.5em;
+    }
+
     .last {
-        margin-left: 1em;
+        margin-left: 0.5em;
     }
 
     .timerecording {
