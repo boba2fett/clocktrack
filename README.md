@@ -1,11 +1,7 @@
 # ClockTrack
 
-Environment:
+## Environment
 
-- OS (lsb_release -a)
-```
---OS_RELEASE--
-```
 - node --NODE_VERSION--
 - npm: --NPM_VERSION--
 

@@ -2,3 +2,6 @@
 /public/build/
 artifacts
 .DS_Store
+source
+source-*.zip
+*.bak
