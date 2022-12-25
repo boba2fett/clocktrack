@@ -9,8 +9,7 @@ import { readable } from 'svelte/store';
         let timeSeconds = timeRecording.timeSeconds + (timeRecording.lastEndTime ? 0 : (current.getTime() - timeRecording.lastStartTime.getTime()) / 1000);
         let hours = Math.floor(timeSeconds / 3600).toString().padStart(2, '0');
         let minutes = Math.floor(timeSeconds % 3600 / 60).toString().padStart(2, '0');
-        let seconds = Math.floor(timeSeconds % 3600 % 60).toString().padStart(2, '0');
-        return `${hours}:${minutes}:${seconds}`;
+        return `${hours}:${minutes}`;
     }
 
     const time = readable(new Date(), function start(set) {
