@@ -9,7 +9,7 @@
     import { onMount } from 'svelte';
     import TimeSum from "./TimeSum.svelte";
     import Tooltip from "./Tooltip.svelte";
-  import { defaultUrlRule } from "./main";
+    import { defaultUrlRule } from "./main";
 
     let settings: Settings;
     async function getSettings(): Promise<void> {
@@ -125,16 +125,16 @@
     {#if settings?.timeRecordings}
         <div class="timerecordings">
             {#each settings.timeRecordings as timeRecording, index}
-                <div class="timerecording">
-                    {#if !timeRecording.lastEndTime}
-                        <button class="first" on:click={() => pauseTask(index)}><Pause /></button>
-                    {:else}
+                <div class={timeRecording.lastEndTime ? "timerecording" : "timerecording active"}>
+                    {#if timeRecording.lastEndTime}
                         <button class="first" on:click={() => playTask(index)}><Play /></button>
-                    {/if}
-                    {#if !timeRecording.url}
-                        <span class="description">{timeRecording.task}</span>
                     {:else}
+                        <button class="first" on:click={() => pauseTask(index)}><Pause /></button>
+                    {/if}
+                    {#if timeRecording.url}
                         <a class="description" href={timeRecording.url}>{timeRecording.task}</a>
+                    {:else}
+                        <span class="description">{timeRecording.task}</span>
                     {/if}
                     <span class="spacer"></span>
                     <button class="first" on:click={() => navigator.clipboard.writeText(timeRecording.task)}><ContentCopy /></button>
@@ -199,6 +199,10 @@
         flex-direction: row;
         align-items: center;
         vertical-align: baseline;
+    }
+
+    .active {
+        background-color: rgb(54, 53, 61);
     }
 
     .timerecordings {
