@@ -9,19 +9,7 @@
     import { onMount } from 'svelte';
     import TimeSum from "./TimeSum.svelte";
     import Tooltip from "./Tooltip.svelte";
-
-    const defaultUrlRule = [
-        {
-            type: "DL21-05299",
-            baseUri: "https://jira.d-velop.de",
-            regex: ".*/browse/([^/\?]+).*"
-        },
-        {
-            type: "DL21-05301",
-            baseUri: "https://dvelop.lightning.force.com/",
-            regex: ".*/Case/([^/\?]+).*"
-        }
-    ];
+  import { defaultUrlRule } from "./main";
 
     let settings: Settings;
     async function getSettings(): Promise<void> {

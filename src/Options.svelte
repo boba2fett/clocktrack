@@ -3,34 +3,7 @@
     import ContentSave from "svelte-material-icons/ContentSave.svelte";
     import Delete from "svelte-material-icons/Delete.svelte";
     import type { Predefined, Settings } from "./global";
-
-    const predefineds: Predefined[] = [
-        {
-            name: "jira",
-            regex: ".*/browse/([^/\?]+).*"
-        },
-        {
-            name: "salesforce",
-            regex: ".*/Case/([^/\?]+).*"
-        },
-        {
-            name: "stackoverflow",
-            regex: ".*/questions/([^/\?]+).*"
-        },
-    ];
-
-    const defaultUrlRule = [
-        {
-            type: "DL21-05299",
-            baseUri: "https://jira.d-velop.de",
-            regex: ".*/browse/([^/\?]+).*"
-        },
-        {
-            type: "DL21-05301",
-            baseUri: "https://dvelop.lightning.force.com/",
-            regex: ".*/Case/([^/\?]+).*"
-        }
-    ];
+  import { defaultUrlRule, predefineds } from "./main";
 
 	let settings: Settings;
     async function getSettings() {
