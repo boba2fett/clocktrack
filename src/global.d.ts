@@ -13,6 +13,7 @@ export interface TimeRecord {
     timeSeconds: number,
     task: string,
     type: string,
+    url: string,
 }
 
 export interface UrlRule {

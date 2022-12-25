@@ -26,8 +26,9 @@
 
     async function addTask(task: string): Promise<void> {
         let type = settings.fallbackType;
+        let url = null;
         if (!task) {
-            [task, type] = await getUrlMatch();
+            [task, type, url] = await getUrlMatch();
         }
         if (!task) {
             return;
@@ -42,6 +43,7 @@
             lastStartTime: new Date(),
             lastEndTime: null,
             type: type,
+            url: url,
         }]);
         await browser.storage.local.set(settings as any as browser.storage.StorageObject);
         taskName = "";
@@ -80,7 +82,7 @@
         return await browser.tabs.executeScript(tab.id ,{code: code});
     }
 
-	async function getUrlMatch(): Promise<[string, string]> {
+	async function getUrlMatch(): Promise<[string, string, string]> {
 		const result = await executeScript("window.location.href;");
 		let url = result[0] as any as string;
         if (!url)
@@ -95,7 +97,7 @@
         const urlRegex = new RegExp(urlRules[0].regex);
         const matches = url.match(urlRegex);
         if (matches?.length > 1) {
-            return [matches[1], urlRules[0].type];
+            return [matches[1], urlRules[0].type, url];
         }
         return null;
     }
@@ -129,7 +131,11 @@
                     {:else}
                         <button class="first" on:click={() => playTask(index)}><Play /></button>
                     {/if}
-                    <span class="description">{timeRecording.task}</span>
+                    {#if !timeRecording.url}
+                        <span class="description">{timeRecording.task}</span>
+                    {:else}
+                        <a class="description" href={timeRecording.url}>{timeRecording.task}</a>
+                    {/if}
                     <span class="spacer"></span>
                     <button class="first" on:click={() => navigator.clipboard.writeText(timeRecording.task)}><ContentCopy /></button>
                     <Tooltip title={getHours(timeRecording)}>
