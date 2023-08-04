@@ -79,7 +79,7 @@
     {
         const tabs = await browser.tabs.query({active: true, currentWindow: true});
 		const tab = tabs[0];
-        return await browser.tabs.executeScript(tab.id ,{code: code});
+        return await browser.tabs.executeScript(tab.id, {code: code});
     }
 
 	async function getUrlMatch(): Promise<[string, string, string]> {
